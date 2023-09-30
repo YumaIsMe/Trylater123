@@ -37,6 +37,7 @@ local config = {
     }
 }
 
+local Aiming = getgenv().Aiming
 
 local circle = Drawing.new("Circle")
 circle.Transparency = 0.5
