@@ -11,7 +11,7 @@ local CurrentCamera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
 local config = {
-    Aiming = {
+    getgenv().Aiming = {
         Enabled = true,
         ShowFOV = true,
         FOV = 60,
