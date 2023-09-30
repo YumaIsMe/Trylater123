@@ -1,20 +1,18 @@
---[[ Credits to Stefanuk12 ]]--
-
 if getgenv().Aiming then return getgenv().Aiming end
 
--- // Services
+
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
 
--- // Vars
+
 local Heartbeat = RunService.Heartbeat
 local LocalPlayer = Players.LocalPlayer
 local CurrentCamera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
--- // Optimisation Vars
+
 local Drawingnew = Drawing.new
 local Color3fromRGB = Color3.fromRGB
 local Vector2new = Vector2.new
@@ -35,7 +33,7 @@ local FindFirstChild = Instancenew("Part").FindFirstChild
 local tableremove = table.remove
 local tableinsert = table.insert
 
--- // Silent Aim Vars
+
 getgenv().Aiming = {
 	Enabled = true,
 
@@ -68,7 +66,7 @@ getgenv().Aiming = {
 }
 local Aiming = getgenv().Aiming
 
--- // Create circle
+
 local circle = Drawingnew("Circle")
 circle.Transparency = 0.5
 circle.Thickness = 0.5
@@ -76,37 +74,27 @@ circle.Color = Aiming.FOVColour
 circle.Filled = false
 Aiming.FOVCircle = circle
 
--- // Update
+
 function Aiming.UpdateFOV()
-	-- // Make sure the circle exists
 	if not (circle) then
 		return
 	end
-
-	-- // Set Circle Properties
 	circle.Visible = Aiming.ShowFOV
 	circle.Radius = (Aiming.FOV * 3)
 	circle.Position = Vector2new(Mouse.X, Mouse.Y + GetGuiInset(GuiService).Y)
 	circle.NumSides = Aiming.FOVSides
 	circle.Color = Aiming.FOVColour
-
-	-- // Return circle
 	return circle
 end
 
--- // Custom Functions
+
 local CalcChance = function(percentage)
-	-- // Floor the percentage
 	percentage = mathfloor(percentage)
-
-	-- // Get the chance
 	local chance = mathfloor(Randomnew().NextNumber(Randomnew(), 0, 1) * 100) / 100
-
-	-- // Return
 	return chance <= percentage / 100
 end
 
--- // Customisable Checking Functions: Is a part visible
+
 function Aiming.IsPartVisible(Part, PartDescendant)
     local Character = LocalPlayer.Character or CharacterAddedWait(CharacterAdded)
     local Origin = CurrentCamera.CFrame.Position
@@ -119,8 +107,6 @@ function Aiming.IsPartVisible(Part, PartDescendant)
         local ScreenVec = Vector2.new(PartPos.X, PartPos.Y - GuiInset.Y)
 
         local DistanceFromCenter = (ScreenVec - ScreenCenter).Magnitude
-
-        -- Adjust the value 200 based on your preference
         if DistanceFromCenter < 200 then
             return true
         end
@@ -130,71 +116,46 @@ function Aiming.IsPartVisible(Part, PartDescendant)
 end
 
 
--- // Ignore player
 function Aiming.IgnorePlayer(Player)
-	-- // Vars
 	local Ignored = Aiming.Ignored
 	local IgnoredPlayers = Ignored.Players
-
-	-- // Find player in table
 	for _, IgnoredPlayer in ipairs(IgnoredPlayers) do
-		-- // Make sure player matches
 		if (IgnoredPlayer == Player) then
 			return false
 		end
 	end
-
-	-- // Blacklist player
 	tableinsert(IgnoredPlayers, Player)
 	return true
 end
 
--- // Unignore Player
 function Aiming.UnIgnorePlayer(Player)
-	-- // Vars
 	local Ignored = Aiming.Ignored
 	local IgnoredPlayers = Ignored.Players
 
-	-- // Find player in table
 	for i, IgnoredPlayer in ipairs(IgnoredPlayers) do
-		-- // Make sure player matches
 		if (IgnoredPlayer == Player) then
-			-- // Remove from ignored
 			tableremove(IgnoredPlayers, i)
 			return true
 		end
 	end
-
-	-- //
 	return false
 end
 
--- // Ignore team
 function Aiming.IgnoreTeam(Team, TeamColor)
-	-- // Vars
 	local Ignored = Aiming.Ignored
 	local IgnoredTeams = Ignored.Teams
-
-	-- // Find team in table
 	for _, IgnoredTeam in ipairs(IgnoredTeams) do
-		-- // Make sure team matches
 		if (IgnoredTeam.Team == Team and IgnoredTeam.TeamColor == TeamColor) then
 			return false
 		end
 	end
-
-	-- // Ignore team
 	tableinsert(IgnoredTeams, {Team, TeamColor})
 	return true
 end
 
--- // Unignore team
 function Aiming.UnIgnoreTeam(Team, TeamColor)
-	-- // Vars
 	local Ignored = Aiming.Ignored
 	local IgnoredTeams = Ignored.Teams
-
-	-- // Find team in table
 	for i, IgnoredTeam in ipairs(IgnoredTeams) do
 		-- // Make sure team matches
 		if (IgnoredTeam.Team == Team and IgnoredTeam.TeamColor == TeamColor) then
@@ -203,12 +164,9 @@ function Aiming.UnIgnoreTeam(Team, TeamColor)
 			return true
 		end
 	end
-
-	-- // Return
 	return false
 end
 
--- //  Toggle team check
 function Aiming.TeamCheck(Toggle)
 	if (Toggle) then
 		return Aiming.IgnoreTeam(LocalPlayer.Team, LocalPlayer.TeamColor)
@@ -217,48 +175,31 @@ function Aiming.TeamCheck(Toggle)
 	return Aiming.UnIgnoreTeam(LocalPlayer.Team, LocalPlayer.TeamColor)
 end
 
--- // Check teams
 function Aiming.IsIgnoredTeam(Player)
-	-- // Vars
 	local Ignored = Aiming.Ignored
 	local IgnoredTeams = Ignored.Teams
-
-	-- // Check if team is ignored
 	for _, IgnoredTeam in ipairs(IgnoredTeams) do
-		-- // Make sure team matches
 		if (Player.Team == IgnoredTeam.Team and Player.TeamColor == IgnoredTeam.TeamColor) then
 			return true
 		end
 	end
-
-	-- // Return
 	return false
 end
 
--- // Check if player (and team) is ignored
 function Aiming.IsIgnored(Player)
-	-- // Vars
 	local Ignored = Aiming.Ignored
 	local IgnoredPlayers = Ignored.Players
-
-	-- // Loop
 	for _, IgnoredPlayer in ipairs(IgnoredPlayers) do
-		-- // Check if Player Id
 		if (typeof(IgnoredPlayer) == "number" and Player.UserId == IgnoredPlayer) then
 			return true
 		end
-
-		-- // Normal Player Instance
 		if (IgnoredPlayer == Player) then
 			return true
 		end
 	end
-
-	-- // Team check
 	return Aiming.IsIgnoredTeam(Player)
 end
 
--- // Get the Direction, Normal and Material
 function Aiming.Raycast(Origin, Destination, UnitMultiplier)
     if typeof(Origin) == "Vector3" and typeof(Destination) == "Vector3" then
         if not UnitMultiplier then
@@ -267,74 +208,62 @@ function Aiming.Raycast(Origin, Destination, UnitMultiplier)
 
         local Direction = (Destination - Origin).Unit * UnitMultiplier
 
-        -- Calculate the distance between Origin and Destination
         local Distance = (Destination - Origin).Magnitude
 
-        -- You may adjust this threshold value based on your specific needs
-        local Threshold = 10 -- Adjust this value as needed
+        local Threshold = 10 
 
         if Distance < Threshold then
-            -- The part is within the threshold, consider it "visible"
-            return Direction, Vector3.new(0, 1, 0), Enum.Material.Plastic -- Return a default normal and material
+            return Direction, Vector3.new(0, 1, 0), Enum.Material.Plastic 
         end
     end
 
     return nil
 end
 
--- // Get Character
 function Aiming.Character(Player)
 	return Player.Character
 end
 
--- // Check Health
+
 function Aiming.CheckHealth(Player)
-	-- // Get Humanoid
+
 	local Character = Aiming.Character(Player)
 	local Humanoid = FindFirstChildWhichIsA(Character, "Humanoid")
 
-	-- // Get Health
 	local Health = (Humanoid and Humanoid.Health or 0)
 
-	-- //
 	return Health > 0
 end
 
--- // Check if silent aim can used
+
 function Aiming.Check()
 	return (Aiming.Enabled == true and Aiming.Selected ~= LocalPlayer and Aiming.SelectedPart ~= nil)
 end
 Aiming.checkSilentAim = Aiming.Check
 
--- // Get Closest Target Part
+
 function Aiming.GetClosestTargetPartToCursor(Character)
 	local TargetParts = Aiming.TargetPart
 
-	-- // Vars
 	local ClosestPart = nil
 	local ClosestPartPosition = nil
 	local ClosestPartOnScreen = false
 	local ClosestPartMagnitudeFromMouse = nil
 	local ShortestDistance = 1/0
 
-	-- //
 	local function CheckTargetPart(TargetPart)
-		-- // Convert string -> Instance
 		if (typeof(TargetPart) == "string") then
 			TargetPart = FindFirstChild(Character, TargetPart)
 		end
 
-		-- // Make sure we have a target
 		if not (TargetPart) then
 			return
 		end
 
-		-- // Get the length between Mouse and Target Part (on screen)
 		local PartPos, onScreen = WorldToViewportPoint(CurrentCamera, TargetPart.Position)
 		local GuiInset = GetGuiInset(GuiService)
 		local Magnitude = (Vector2new(PartPos.X, PartPos.Y - GuiInset.Y) - Vector2new(Mouse.X, Mouse.Y)).Magnitude
 
-		-- //
 		if (Magnitude < ShortestDistance) then
 			ClosestPart = TargetPart
 			ClosestPartPosition = PartPos
