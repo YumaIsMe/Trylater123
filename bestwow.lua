@@ -1,4 +1,4 @@
-if getgenv().Aiming then return getgenv().Aiming end
+if getgenv().config then return getgenv().config end
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local GuiService = game:GetService("GuiService")
@@ -10,7 +10,7 @@ local LocalPlayer = Players.LocalPlayer
 local CurrentCamera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
-local config = {
+getgenv().config =
     Aiming = {
         Enabled = true,
         ShowFOV = true,
@@ -37,7 +37,7 @@ local config = {
     }
 }
 
-local Aiming = getgenv().Aiming
+local config = getgenv().config
 
 local circle = Drawing.new("Circle")
 circle.Transparency = 0.5
